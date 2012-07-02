@@ -57,7 +57,8 @@ class Imply
             {
                 $r .= (DIRECTORY_SEPARATOR . $pieces[$the_i]);
             }
+            return ROOT . strtolower($pieces[1]) . DIRECTORY_SEPARATOR . "$r.php";
         }
-        return ROOT . strtolower($pieces[1]) . DIRECTORY_SEPARATOR . "$r.php";
+        throw new Exception("Class namespace depth too short for autoloader ($class)");
     }
 }
