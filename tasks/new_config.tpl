@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<configuration>
+  <default>
+    <database>
+      <adapter>pdo_mysql</adapter>
+      <params>
+        <host>{$host}</host>
+        <port>{$port}</port>
+        <username>{$user}</username>
+        <password>{$pass}</password>
+        <dbname>{$database}</dbname>
+      </params>
+    </database>
+  </default>
+  <framework>
+    <application_namespace>{$namespace}</application_namespace>
+    <index_action>IndexAction</index_action>
+    <index_controller>Index</index_controller>
+    <dev>yes</dev>
+  </framework>
+</configuration>
