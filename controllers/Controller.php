@@ -27,4 +27,9 @@ class Controller
         return $this->actions;
     }
     
+    public function getView()
+    {
+        return new \Zule\Tools\View;
+    }
+    
 }

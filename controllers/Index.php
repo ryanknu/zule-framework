@@ -4,16 +4,16 @@ namespace Zule\Controllers;
 
 class Index extends Controller
 {
-    protected $actions = array('IndexAction');
+    protected $actions = ['IndexAction'];
     
     public function IndexAction()
     {
-        $s = new \Smarty;
+        $view = $this->getView();
         
-        $s->assign('title', 'Zule Framework');
-        $s->display(\Zule\Tools\View::find('header'));
-        $s->display(\Zule\Tools\view::find('home'));
-        $s->display(\Zule\Tools\view::find('footer'));
+        $view->assign('title', 'Zule Framework');
+        $view->display('header');
+        $view->display('home');
+        $view->display('footer');
     }
     
 }

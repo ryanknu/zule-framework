@@ -4,22 +4,22 @@ namespace Zule\Controllers;
 
 class Error extends Controller
 {
-    protected $actions = array('Action404', 'Action500');
+    protected $actions = array('Action403', 'Action404', 'Action500');
     protected $name = 'Error';
     private $exception;
     
     public function Action404()
     {
-        $s = new \Smarty;
+        $view = $this->getView();
         if ( \Zule\Tools\Config::dev() )
         {
-            $s->assign('message', print_r(\Zule\Tools\Router::Router()->getRoutesInfo(), true));
+            $view->assign('message', print_r(\Zule\Tools\Router::Router()->getRoutesInfo(), true));
         }
         else
         {
-            $s->assign('message', 'The resource requested could not be located.');
+            $view->assign('message', 'The resource requested could not be located.');
         }
-        $s->display(\Zule\Tools\View::find('404'));
+        $view->display('404');
     }
     
     public function setException($e)
@@ -29,9 +29,9 @@ class Error extends Controller
     
     public function Action500()
     {
-        $s = new \Smarty;
-        $s->assign('message', $this->exception->__toString());
-        $s->display(\Zule\Tools\View::find('500'));
+        $view = $this->getView();
+        $view->assign('message', $this->exception->__toString());
+        $view->display('500');
     }
     
 }
