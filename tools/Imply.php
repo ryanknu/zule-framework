@@ -49,6 +49,13 @@ class Imply
     
     public static function getFileNameForClass($class)
     {
+        if ( $class{0} == '\\' )
+        {
+            // For whole identifiers, e.g. \Zule\Test\Whatever, we need to cut off
+            // the first character for this function to work.
+            $class = substr($class, 1);
+        }
+        
         $pieces = explode('\\', $class);
         if ( count($pieces) > 2 )
         {

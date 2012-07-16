@@ -2,8 +2,6 @@
 
 namespace Zule\Tools;
 
-define('ZF_VIEW_404', 'views/404.tpl');
-
 class View
 {
     // handle to a smarty object
@@ -57,17 +55,22 @@ class View
             {
                 return $path;
             }
-            else if ( strpos($name, '/') === false )
+            else if ( strpos($name, '/') !== false )
             {
-                return ROOT . ZF_VIEW_404;
+                // trying to do cross-controller viewing, which is
+                // bad design.
+                throw new Exception(
+                    "Unable to locate nested view '$name' in view layer."
+                );
             }
         }
 
         $stdPath = ROOT . 'views/' . $name . '.tpl';
-        if ( ! file_exists( $stdPath ) )
+        if (  file_exists( $stdPath ) )
         {
-            return ROOT . ZF_VIEW_404;
+            return $stdPath;
         }
-        return $stdPath;
+        
+        throw new Exception("Unable to locate view '$name' in view layer.");
     }
 }
