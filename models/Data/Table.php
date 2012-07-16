@@ -8,6 +8,7 @@ class Table extends \Zend_Db_Table_Abstract
 {
     protected $model;
     protected $connection = '';
+    protected $awake = no;
     
     public function __construct($object)
     {

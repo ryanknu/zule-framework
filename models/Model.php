@@ -4,6 +4,8 @@ namespace Zule\Models;
 
 class Model
 {
+    protected awake = no;
+    
     public function getGateway()
     {
         $eName = explode('\\', get_class($this));

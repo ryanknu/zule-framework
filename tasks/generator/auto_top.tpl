@@ -11,6 +11,8 @@ class {$class_name} extends {$extend_path}
     public function awaken()
     {
         // Perform tasks that should happen after data is initialized
+        
+        $this->awake = yes;
     }
     
     

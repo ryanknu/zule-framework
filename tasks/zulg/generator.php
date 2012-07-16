@@ -2,9 +2,12 @@
 
 namespace Zulg;
 
+require_once 'zulg/naming.php';
+
 define ( 'ZULG_END', '    /// ZULG END OF DEFINITIONS' );
-define ( 'ZULG_TOP', 'auto_top.php' );
-define ( 'ZULG_CENTER', 'auto_center.php' );
+define ( 'ZULG_PATH', 'generator/' );
+define ( 'ZULG_TOP', 'generator/auto_top.tpl' );
+define ( 'ZULG_CENTER', 'generator/auto_center.tpl' );
 
 class Generator
 {
@@ -69,7 +72,7 @@ class Generator
             $this->buffer .= $smarty->fetch(ZULG_CENTER);
         }
         
-        $this->buffer .= $smarty->fetch($tplName);
+        $this->buffer .= $smarty->fetch(ZULG_PATH . $tplName . '.tpl');
         
         $this->writeLine("Generated template for $tplName");
         
@@ -84,9 +87,9 @@ class Generator
     
     public function saveToDisk()
     {
-        $file = new SplFileObject($this->fileName, 'w');
+        $file = new \SplFileObject($this->fileName, 'w');
         $bytes = $file->fwrite($this->buffer);
         
-        $this->writeLine("Wrote $bytes to {$this->fileName");
+        $this->writeLine("Wrote $bytes to {$this->fileName}");
     }
 }

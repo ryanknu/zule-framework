@@ -3,13 +3,22 @@
     
     public function save()
     {
+        {$primary_key} = $this->model->get{$primary_key}();
         $row = [
             {foreach from=$columns item=column}
-            '{$column}' => $this->model->get{$camels[$column]}(),
+            {if $column['name'] != $primary_key}
+            '{$column['name']}' => $this->model->get{$column['camel']}(),
+            {/if}
             {/foreach}
         ];
-        
-        $this->insert($row);
+        if ( {$primary_key} )
+        {
+            $this->insert($row);
+        }
+        else
+        {
+            $this->update($row, "`{$primary_key}` = '${$primary_key}'");
+        }
     }
     
     public function load(${$primary_key})
@@ -24,15 +33,23 @@
         {
             $model = new \{$namespace}\Models\{$model_name};
             
-            {foreach from=$columns item=column}
-            $model->set{$camels[$column]}($row['{$column}']);
-            {/foreach}
+            $row = [
+                {foreach from=$columns item=column}
+                {if $column != $primary_key}
+                '{$column['name']}' => $row['{$column['name']}'],
+                {/if}
+                {/foreach}
+            ];
+            
+            $model->set{$primary_key}({$columns[$primary_key]['name']});
+            $model->setAllByArray($row);
+            $model->awaken();
 
             return $model;
         }
         else
         {
-            throw new \{$namespace}\Tools\Exception("{$model_name} not found ({$primary_key}: ${$primary_key})");
+            throw new \{$system}\Tools\Exception("{$model_name} not found ({$primary_key}: ${$primary_key})");
         }
     }
 }

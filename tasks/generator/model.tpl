@@ -1,15 +1,15 @@
 
     // Control vars
-    {foreach from=$columns item=column}private ${$lCamels[$column]};
+    {foreach from=$columns item=column}private ${$column['l_camel']};
     {/foreach}
     
-    {if $generate_gateway}// $safe is a sanitized array, e.g. all values in safe
+    // $safe is a sanitized array, e.g. all values in safe
     // are assumed to be non-corrupted data.
     public function save(array $safe)
     {
-        {foreach from=$columns item=column}if ( array_key_exists('{$column}', $safe) )
+        {foreach from=$columns item=column}if ( array_key_exists('{$column['name']}', $safe) )
         {
-            $this->{$lCamels[$column]} = $safe['{$column}'];
+            $this->{$column['l_camel']} = $safe['{$column['name']}'];
         }
         
         {/foreach}
@@ -17,11 +17,11 @@
         $this->getGateway()->save();
     }
     
-    public function set{$camels[$primary_key]($aValue)
+    public function set{$columns[$primary_key]['name']}($aValue)
     {
         if ( !$this->awake )
         {
-            $this->{$lcamels[$primary_key]} = $aValue;
+            $this->{$columns[$primary_key]['l_camel']} = $aValue;
         }
         else
         {
@@ -34,23 +34,21 @@
     public function setAllByArray(array $inArray)
     {
         {foreach from=$columns item=column}
-        {if $column != $primary_key}
-        $this->{$lCamels[$column]} = $inArray['{$column}'];
+        {if $column['name'] != $primary_key}
+        $this->{$column['l_camel']} = $inArray['{$column['name']}'];
         {/if}
         {/foreach}
     }
     
-    {/if}
-    
-    {foreach from=$columns item=column}public function get{$camels[$column]}()
+    {foreach from=$columns item=column}public function get{$column['camel']}()
     {
-        return $this->{$lCamels[$column]};
+        return $this->{$column['l_camel']};
     }
     
-    {if $useUnsafeSetters}
-    public function set{$camels[$column]}(${$lCamels[$column]})
+    {if $use_unsafe_setters}
+    public function set{$column['camel']}(${$column['l_camel']})
     {
-        $this->{$lCamels[$column]} = ${$lCamels[$column]};
+        $this->{$column['l_camel']} = ${$column['l_camel']};
     }
     {/if}
     
