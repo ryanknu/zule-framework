@@ -4,7 +4,6 @@ namespace Zule\Controllers;
 
 class Error extends Controller
 {
-    protected $actions = [];
     protected $name = 'Error';
     private $exception;
     

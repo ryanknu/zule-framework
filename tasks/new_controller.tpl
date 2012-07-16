@@ -3,9 +3,7 @@
 namespace {$namespace}\Controllers;
 
 class {$controller} extends \{$system}\Controllers\Controller
-{
-    protected $actions = [{$actionString}];
-    
+{   
     {foreach from=$actions item=act}
     
     public function {$act}()

@@ -3,9 +3,7 @@
 namespace Zule\Controllers;
 
 class Index extends Controller
-{
-    protected $actions = ['IndexAction'];
-    
+{   
     public function IndexAction()
     {
         $view = $this->getView();
@@ -15,5 +13,4 @@ class Index extends Controller
         $view->display('home');
         $view->display('footer');
     }
-    
 }
