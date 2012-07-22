@@ -64,6 +64,13 @@ class JsonConfig
 	            else
 	            {
 	                self::$cache[$file] = $configIn;
+	                if ( !empty( self::$cache[$file]['use'] ) )
+	                {
+	                    foreach( self::$cache[$file]['use'] as $use )
+	                    {
+	                        $this->useFile($use);
+	                    }
+	                }
 	                $this->filename = $file;
 	                return yes;
 	            }
@@ -79,7 +86,68 @@ class JsonConfig
 	            else
 	            {
 	                self::$cache[$file] = $configIn;
+	                if ( !empty( self::$cache[$file]['use'] ) )
+	                {
+	                    foreach( self::$cache[$file]['use'] as $use )
+	                    {
+	                        $this->useFile($use);
+	                    }
+	                }
 	                $this->filename = $file;
+	                return yes;
+	            }
+	        }
+	        else
+	        {
+	            return self::$NO_METHOD;
+	        }
+	    }
+	    else
+	    {
+	        return self::$FILE_DNE;
+	    }
+	}
+	
+	// Implements use logic in [#24]
+	public function useFile($file)
+	{
+	    $file = ( self::$CONFIG_PATH . $file );
+	    
+	    if ( file_exists( $file ) )
+	    {
+	        // need extra string utilities
+	        $fileStr = new String($file);
+	        if ( $fileStr->endsWith('.ser') )
+	        {
+	            // serialize
+	            $configIn = unserialize( file_get_contents( $file ) );
+	            if ( $configIn === false )
+	            {
+	                return self::$LOAD_ERR;
+	            }
+	            else
+	            {
+	                self::$cache[$file] = array_merge(
+	                    self::$cache[$file],
+	                    $configIn
+	                );
+	                return yes;
+	            }
+	        }
+	        else if ( $fileStr->endsWith('.json') )
+	        {
+	            // json
+	            $configIn = json_decode( file_get_contents( $file ), yes );
+	            if ( $configIn === null )
+	            {
+	                return self::$LOAD_ERR;
+	            }
+	            else
+	            {
+	                self::$cache[$file] = array_merge(
+	                    self::$cache[$file],
+	                    $configIn
+	                );
 	                return yes;
 	            }
 	        }
