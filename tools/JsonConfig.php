@@ -2,13 +2,15 @@
 
 namespace Zule\Tools;
 
-// #19, #20 - replace master config with this one. not yet done.
+// #19 - replace master config with this one. not yet done.
 class JsonConfig
 {
     // Enum types
-    public static FILE_DNE = 'CONFIG_FILE_DNE';
-    public static LOAD_ERR = 'CONFIG_FILE_LOAD_ERROR';
-    public static NO_METHOD = 'CANNOT_HANDLE_FILE_TYPE';
+    public static const $FILE_DNE = 'CONFIG_FILE_DNE';
+    public static const $LOAD_ERR = 'CONFIG_FILE_LOAD_ERROR';
+    public static const $NO_METHOD = 'CANNOT_HANDLE_FILE_TYPE';
+    public static const $CONFIG_PATH = ROOT . 'config/';
+    
     
     // Holds onto the config between object instances.
     private static $cache = [];
@@ -21,10 +23,10 @@ class JsonConfig
 	    if ( empty( self::$cache ) )
 	    {
 	        // load serial config file first for speed
-	        $errMsgSer = $this->loadFile(ROOT . 'config/config.ser')
+	        $errMsgSer = $this->loadFile('config.ser')
 	        if ( $errMsgSer !== yes )
 	        {
-	            $errMsgJson = $this->loadFile(ROOT . 'config/config.json');
+	            $errMsgJson = $this->loadFile('config.json');
 	            if ( $errMsgJson !== yes )
 	            {
 	                // unable to load either of the default config files
@@ -38,6 +40,8 @@ class JsonConfig
 	// object's file key.
 	public function loadFile($file)
 	{
+	    $file = ( self::$CONFIG_PATH . $file );
+	    
 	    if ( array_key_exists( $file, self::$cache ) )
 	    {
 	        // short circuit this method
