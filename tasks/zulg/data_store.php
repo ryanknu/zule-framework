@@ -92,12 +92,22 @@ class DataStore
         $this->data = json_encode($this->data);
     }
     
+    public function setFilename($fn)
+    {
+        $this->filename = $fn;
+    }
+    
     public function writeFile()
     {
         $file = new \SplFileObject($this->filename, 'w');
         $bytes = $file->fwrite($this->data);
         echo $this->data;
         //$this->writeLine("Wrote $bytes to {$this->fileName}");
+    }
+    
+    public function setData($arr)
+    {
+        $this->data = $arr;
     }
     
     public function readFile($file)

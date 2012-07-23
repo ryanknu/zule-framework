@@ -2,15 +2,19 @@
 
 namespace Zule\Tools;
 
+// autoloader is not yet defined, so we need these files
+require ROOT . 'tools/Exception.php';
+require ROOT . 'tools/String.php';
+
+define('CONFIG_PATH', ROOT . 'config/');
+
 // #19 - replace master config with this one. not yet done.
 class JsonConfig
 {
     // Enum types
-    public static const $FILE_DNE = 'CONFIG_FILE_DNE';
-    public static const $LOAD_ERR = 'CONFIG_FILE_LOAD_ERROR';
-    public static const $NO_METHOD = 'CANNOT_HANDLE_FILE_TYPE';
-    public static const $CONFIG_PATH = ROOT . 'config/';
-    
+    public static $FILE_DNE = 'CONFIG_FILE_DNE';
+    public static $LOAD_ERR = 'CONFIG_FILE_LOAD_ERROR';
+    public static $NO_METHOD = 'CANNOT_HANDLE_FILE_TYPE';
     
     // Holds onto the config between object instances.
     private static $cache = [];
@@ -23,7 +27,7 @@ class JsonConfig
 	    if ( empty( self::$cache ) )
 	    {
 	        // load serial config file first for speed
-	        $errMsgSer = $this->loadFile('config.ser')
+	        $errMsgSer = $this->loadFile('config.ser');
 	        if ( $errMsgSer !== yes )
 	        {
 	            $errMsgJson = $this->loadFile('config.json');
@@ -40,7 +44,7 @@ class JsonConfig
 	// object's file key.
 	public function loadFile($file)
 	{
-	    $file = ( self::$CONFIG_PATH . $file );
+	    $file = ( CONFIG_PATH . $file );
 	    
 	    if ( array_key_exists( $file, self::$cache ) )
 	    {
@@ -111,7 +115,7 @@ class JsonConfig
 	// Implements use logic in [#24]
 	public function useFile($file)
 	{
-	    $file = ( self::$CONFIG_PATH . $file );
+	    $file = ( CONFIG_PATH . $file );
 	    
 	    if ( file_exists( $file ) )
 	    {
@@ -170,6 +174,11 @@ class JsonConfig
 	    }
 	    throw new Exception("Invalid config key requested '$key' in "
 	        . "cache {$this->filename}.");
+	}
+	
+	public function getFilename()
+	{
+	    return $this->filename;
 	}
 }
 

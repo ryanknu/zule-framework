@@ -2,7 +2,7 @@
 
 date_default_timezone_set('America/Chicago');
 
-require '/Users/ryan/apache/library/Smarty/Smarty.class.php';
+require '../config/vital.php';
 require 'zulg/data_store.php';
 
 if ( isset($_GET['file']) )

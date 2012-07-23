@@ -4,7 +4,7 @@ namespace Zule\Tools;
 
 // Adds an auto-loader for auto-awesome.
 // Needs config for custom application namespaces.
-require_once ROOT . 'tools/Config.php';
+require_once ROOT . 'tools/JsonConfig.php';
 
 spl_autoload_register( function($class) {
     if ( $file = \Zule\Tools\Imply::classCanBeImplied($class) )
@@ -31,7 +31,7 @@ class Imply
         if ( count($namespaces) == 1 )
         {
             // Cannot statically declare dynamic variable, need to set at runtime.
-            $namespaces[] = Config::zc()->framework->application_namespace;
+            $namespaces[] = (new JsonConfig)->getValueForKey('namespace');
         }
         
         $pieces = explode('\\', $name);
