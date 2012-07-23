@@ -15,7 +15,7 @@ else
     
     try
     {
-        $cnf = new \Zule\Tools\JsonConfig;
+        $cnf = new \Zule\Tools\Config;
         header('Location:data_store.php?file=' . $cnf->getFilename());
     }
     catch (Exception $e)
