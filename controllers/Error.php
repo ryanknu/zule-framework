@@ -10,7 +10,7 @@ class Error extends Controller
     public function Action404()
     {
         $view = $this->getView();
-        if ( \Zule\Tools\Config::dev() )
+        if ( (new Config)->get('dev') )
         {
             $view->assign('message', print_r(\Zule\Tools\Router::Router()->getRoutesInfo(), true));
         }
@@ -29,7 +29,14 @@ class Error extends Controller
     public function Action500()
     {
         $view = $this->getView();
-        $view->assign('message', $this->exception->__toString());
+        if ( (new Config)->get('dev') )
+        {
+            $view->assign('message', $this->exception->__toString());
+        }
+        else
+        {
+            $view->assign('message', 'There was a problem, and the resource cannot be displayed.');
+        }
         $view->display('500');
     }
     
