@@ -2,6 +2,8 @@
 
 namespace Zule\Controllers;
 
+use Zule\Tools\Config;
+
 class Error extends Controller
 {
     protected $name = 'Error';

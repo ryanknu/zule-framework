@@ -18,6 +18,8 @@ class Config
     // Holds onto the config between object instances.
     private static $cache = [];
     
+    private static $mainConfigPath = no;
+    
     // Holds onto the loaded file's name
     private $filename;
     
@@ -35,7 +37,20 @@ class Config
 	                // unable to load either of the default config files
 	                throw new Exception( "$errMsgSer $errMsgJson" );
 	            }
+	            else
+	            {
+	                self::$mainConfigPath = $this->filename;
+	            }
 	        }
+	        else
+	        {
+	            self::$mainConfigPath = $this->filename;
+	        }
+	    }
+	    else
+	    {
+	        // if we're not building the main config, load the main config
+	        $this->filename = self::$mainConfigPath;
 	    }
 	}
 	
@@ -165,11 +180,19 @@ class Config
 	    }
 	}
 	
-	public function getValueForKey($key)
+	public function get($key)
 	{
 	    if ( array_key_exists( $key, self::$cache[$this->filename] ) )
 	    {
-	        return self::$cache[$this->filename][$key];
+	        $rVal = self::$cache[$this->filename][$key];
+	        if ( $rVal == 'no' )
+	        {
+	            return no;
+	        }
+	        else
+	        {
+	            return $rVal;
+	        }
 	    }
 	    throw new Exception("Invalid config key requested '$key' in "
 	        . "cache {$this->filename}.");
