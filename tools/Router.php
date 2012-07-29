@@ -5,6 +5,7 @@ namespace Zule\Tools;
 class Router
 {
     private $components;
+    private $requestURI;
     
     public static function Router()
     {
@@ -19,11 +20,17 @@ class Router
     private function __construct()
     {
         $uri = substr($_SERVER['REQUEST_URI'], 1);
+        $this->requestURI = $uri;
         if ( strpos($uri, '?') )
         {
             $uri = strstr($uri, '?', yes);
         }
         $this->components = explode('/', $uri);
+    }
+    
+    public function getRequest()
+    {
+        return $this->requestURI;
     }
     
     public function getController()
@@ -35,7 +42,7 @@ class Router
         }
         else
         {
-            $indexController = Config::zc()->framework->index_controller;
+            $indexController = (new Config)->get('index:controller');
             return $this->loadController($indexController);
         }
     }
@@ -46,7 +53,7 @@ class Router
         {
             return $this->components[1];
         }
-        return Config::zc()->framework->index_action;
+        return (new Config)->get('index:action');
     }
     
     public function getComponents()
@@ -101,8 +108,8 @@ class Router
             'uri' => substr($_SERVER['REQUEST_URI'], 1),
             'route_controller' => $this->components[0],
             'route_action' => @$this->components[1],
-            'index_controller' => Config::zc()->framework->index_controller,
-            'index_action' => Config::zc()->framework->index_action,
+            'index_controller' => (new Config)->get('index:controller'),
+            'index_action' => (new Config)->get('index:action'),
             'using_index_controller' => empty($this->components[0]) ? 'yes':'yes',
             'using_index_action' => (empty($this->components[1]))?'yes':'no',
             'controller_class' => $className,
@@ -120,9 +127,9 @@ class Router
     {
         if ( empty($name) )
         {
-            $name = Config::zc()->framework->index_controller;
+            $name = (new Config)->get('index:controller');
         }
-        $nameSpace = Config::zc()->framework->application_namespace;
+        $nameSpace = (new Config)->get('namespace');
 	    $class = "\\$nameSpace\\Controllers\\$name";
 	    return $class;
     }

@@ -2,7 +2,7 @@
 
 namespace Zule;
 
-require_once 'tools/loader.php';
+require_once 'tools/Main.php';
 
 if ( isset( $_GET['show_route_info'] ) )
 {
