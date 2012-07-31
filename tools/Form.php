@@ -18,6 +18,7 @@ define('ZF_URL', 206);
 define('ZF_HIDDEN', 207);
 define('ZF_MASKED', 208);
 define('ZF_SUBMIT', 209);
+define('ZF_LIST', 210);
 
 define('ZF_MISSING', 100);
 define('ZF_INVALID', 101);
@@ -107,12 +108,14 @@ class Form
         $this->components[$name] = [
             'name'     => $name,
             'type'     => $type,
+            'label'    => $name,
             'required' => yes,
             'filter'   => yes,
             'default'  => no,
             'problem'  => no,
             'draw'     => $type,
             'matches'  => no,
+            'options'  =>no,
         ];
         
         $this->scanPost($name);
@@ -126,12 +129,14 @@ class Form
         $this->components[$name] = [
             'name'     => $name,
             'type'     => $type,
+            'label'    => $name,
             'required' => no,
             'filter'   => yes,
             'default'  => no,
             'problem'  => no,
             'draw'     => $type,
             'matches'  => no,
+            'options'  =>no,
         ];
         
         $this->scanPost($name);
@@ -155,14 +160,30 @@ class Form
             $csrf = $session->get('csrf');
             if ( !isset( $_POST[ZF_CSRF] ) || $_POST[ZF_CSRF] != $csrf )
             {
-                throw new Exception('CSRF check failed on form ' . $this->name);
+                print_r($_POST);
+                $cc = "CSRF POST: {$_POST[ZF_CSRF]} CSRF SESS: $csrf";
+                throw new Exception('CSRF check failed on form ' . $this->name . $cc );
+            }
+            else
+            {
+                // add csrf to form in case we're looping
+                $this->addInput(ZF_CSRF, ZF_HIDDEN)->setDefault($session->get('csrf'));
             }
         }
     }
     
     public function setDefault($value)
     {
-        $this->components[$this->lastComponent]['default'] = $value;
+        if ( !$this->components[$this->lastComponent]['default'] )
+        {
+            $this->components[$this->lastComponent]['default'] = $value;
+        }
+        return $this;
+    }
+    
+    public function setLabel($value)
+    {
+        $this->components[$this->lastComponent]['label'] = $value;
         return $this;
     }
     
@@ -185,6 +206,12 @@ class Form
                 $this->components[$this->lastComponent]['problem'] = ZF_MISMATCH;
             }
         }
+        return $this;
+    }
+    
+    public function withOptions($opts)
+    {
+        $this->components[$this->lastComponent]['options'] = $opts;
         return $this;
     }
     
@@ -223,6 +250,7 @@ class Form
             ZF_MASKED  => 'masked.tpl',
             ZF_SUBMIT  => 'submit.tpl',
             ZF_PROBLEM => 'problem.tpl',
+            ZF_LIST    => 'list.tpl',
         ];
         
         return $types[$type];
@@ -240,6 +268,7 @@ class Form
             ZF_HIDDEN  => no,
             ZF_MASKED  => no,
             ZF_SUBMIT  => no,
+            ZF_LIST    => no,
         ];
         
         $type = $this->components[$name]['type'];
@@ -277,6 +306,12 @@ class Form
                     $this->results[$name] = $_POST[$name];
                 }
                 
+                // recycle values
+                if ( $this->components[$name]['type'] <> ZF_MASKED )
+                {
+                    $this->components[$name]['default'] = $_POST[$name];
+                }
+                
                 if ( !$this->results[$name] )
                 {
                     $this->components[$name]['problem'] = ZF_INVALID;
@@ -290,15 +325,15 @@ class Form
             }
             else
             {
-                $this->results['name'] = '';
+                $this->results[$name] = '';
             }
         }
     }
     
     private function findElementFile($file)
     {
-        $controllerName = 'Login';
-        $file = $this->getFile($file); // very confusing line
+        $controllerName = $this->name;
+        //$file = $this->getFile($file); // very confusing line
         
         $checks = [
             ROOT . "forms/$controllerName/Elements/$file",
@@ -319,7 +354,7 @@ class Form
     
     private function findContainerFile()
     {
-        $controllerName = 'Login';
+        $controllerName = $this->name;
         $fizzle = ROOT . "forms/$controllerName/Container/main.tpl";
         if ( file_exists( $fizzle ) )
         {
@@ -355,25 +390,19 @@ class Form
                 $s->assign('problem', '');
             }
             
-            $file = $this->getFile($this->components[$name]['type']);
-            
-            if ( file_exists( ROOT . "forms/$controllerName/Elements/$file" ) )
+            $draw = $this->components[$name]['draw'];
+            if ( is_int( $draw ) )
             {
-                $this->components[$name]['html'] = $s->fetch(
-                    ROOT . "forms/$controllerName/Elements/$file"
-                );
-            }
-            else if ( file_exists ( ROOT . 'forms/' . ZULE_FORM_DEFAULT . "/Elements/$file" ) )
-            {
-                $this->components[$name]['html'] = $s->fetch(
-                    ROOT . 'forms/' . ZULE_FORM_DEFAULT . "/Elements/$file"
-                );
+                $file = $this->getFile( $draw );
             }
             else
             {
-                $default = ROOT . 'forms/' . ZULE_FORM_DEFAULT . "/Elements/$file";
-                throw new Exception("Cannot locate template file. (tried '$default')");
+                $file = $draw;
             }
+            
+            $this->components[$name]['html'] = $s->fetch(
+                $this->findElementFile($file)
+            );
             
         }
         

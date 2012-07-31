@@ -1,0 +1,1 @@
+This is a bomb! <input type="submit" value="{$default}" />

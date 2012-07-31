@@ -1,4 +1,4 @@
-<label for="{$name}">{$name}</label>
+<label for="{$name}">{$label}</label>
 <input type="text" name="{$name}" id="{$name}" {if $default}value="{$default}" {/if} />
 {$problem}
 

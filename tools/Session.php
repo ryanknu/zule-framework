@@ -34,7 +34,11 @@ class SessionStore
     public function __construct($name)
     {
         $this->storeName = $name;
-        if ( !array_key_exists($name, $_SESSION) )
+        if ( array_key_exists($name, $_SESSION) )
+        {
+            $_SESSION[$name] = json_decode($_SESSION[$name], yes);
+        }
+        else
         {
             $_SESSION[$name] = [];
         }
@@ -59,5 +63,11 @@ class SessionStore
     public function destroyStore()
     {
         unset( $_SESSION[$this->storeName] );
+    }
+    
+    public function __destruct()
+    {
+        // flatten session
+        $_SESSION[$this->storeName] = json_encode($_SESSION[$this->storeName]);
     }
 }

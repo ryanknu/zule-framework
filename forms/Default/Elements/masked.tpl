@@ -1,3 +1,3 @@
-<label for="{$name}">{$name}</label>
+<label for="{$name}">{$label}</label>
 <input type="password" name="{$name}" id="{$name}" />
 {$problem}

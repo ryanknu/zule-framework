@@ -4,7 +4,7 @@ namespace Zule\Models;
 
 class Model
 {
-    protected awake = no;
+    protected $awake = no;
     
     public function getGateway()
     {

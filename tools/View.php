@@ -1,6 +1,7 @@
 <?php
 
 namespace Zule\Tools;
+use Smarty;
 
 class View
 {
@@ -9,7 +10,12 @@ class View
     
     public function __construct()
     {
-        $this->smarty = new \Smarty;
+        $this->smarty = new Smarty;
+        $this->smarty->setCompileDir(ROOT . 'cache');
+        if ( (new Config)->get('dev') )
+        {
+            $this->smarty->force_compile = yes;
+        }
     }
     
     public function getSmarty()

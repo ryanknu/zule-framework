@@ -2,19 +2,21 @@
 
 namespace Zule\Controllers;
 
+use ReflectionClass;
+use ReflectionMethod;
+use Zule\Tools\View;
+use Zule\Tools\Router;
+
 class Controller
 {
     private $actions = [];
+    protected $router = null;
     protected $name = "";
     
-    public function setName($name)
+    public function __construct($name, Router $router)
     {
         $this->name = $name;
-    }
-    
-    public function getName()
-    {
-        return $this->name;
+        $this->router = $router;
     }
     
     private function loadActionsByReflection()
@@ -22,8 +24,8 @@ class Controller
         if ( empty( $this->actions ) )
         {
             $class = get_class($this);
-            $rc = new \ReflectionClass($class);
-            $methods = $rc->getMethods(\ReflectionMethod::IS_PUBLIC);
+            $rc = new ReflectionClass($class);
+            $methods = $rc->getMethods(ReflectionMethod::IS_PUBLIC);
             foreach( $methods as $method )
             {
                 if ( $method->getDeclaringClass()->getName() == $class )
@@ -35,21 +37,25 @@ class Controller
         }
     }
     
-    public function canRespondToAction($action)
+    public function isValidAction($action)
     {
         $this->loadActionsByReflection();
         return in_array($action, $this->actions);
     }
     
-    public function getActions()
+    public function getName()
     {
-        $this->loadActionsByReflection();
-        return $this->actions;
+        return $this->name;
     }
     
     public function getView()
     {
-        return new \Zule\Tools\View;
+        return new View($this->name);
+    }
+    
+    public function getRouter()
+    {
+        return $this->router;
     }
     
 }
