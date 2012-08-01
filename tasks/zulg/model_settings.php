@@ -4,10 +4,8 @@ namespace Zulg;
 
 class ModelSettings
 {
-    // Determines if we should generate the Models\Data table gateway
-    // classes. Provides automatic abstraction of the data layer to the
-    // application developer.
-    private $makeGateways;
+    // Determines if we should use Redis or MySQL
+    private $useRedis;
     
     // Determines if the generator should add in generic setXXX($val)
     // methods. These are not typically required to make most applications
@@ -19,31 +17,48 @@ class ModelSettings
     // Tables array contains table information for tables to generate.
     private $tables;
     
+    // Redis columns
+    private $redisColumns;
+    
     public function __construct()
     {
-        $this->makeGateways = true;
+        $this->useRedis = true;
         $this->useUnsafeSetters = false;
         $this->tables = [];
+        $this->redisColumns = [];
         $this->awaken();
     }
     
     public function awaken()
     {
-        // should we make gateways or not
-        // rk 15 jul: gateways are not optional
-        $this->makeGateways = isset($_POST['make_gateway']);
+        // should we use Redis?
+        $this->useRedis = isset($_POST['use_redis']);
         
-        // get list of tables
-        $db = \Zule\Tools\DB::zdb();
-        $dbTables = $db->listTables();
-        foreach( $dbTables as $table )
+        if ( !$this->useRedis )
         {
-            if ( in_array( $table, array_keys($_POST) ) )
+            // SQL not supported with Zend DB adapter anymore.
+            // get list of tables
+            $db = \Zule\Tools\DB::zdb();
+            $dbTables = $db->listTables();
+            foreach( $dbTables as $table )
             {
-                $this->tables[] = new ModelTable($table);
+                if ( in_array( $table, array_keys($_POST) ) )
+                {
+                    $this->tables[] = new ModelTable($table);
+                }
             }
+            return $this;
         }
-        return $this;
+        else
+        {
+            // not sure what to do here.
+            return $this;
+        }
+    }
+    
+    public function useSql()
+    {
+        return !$this->useRedis;
     }
     
     public function getTables()
