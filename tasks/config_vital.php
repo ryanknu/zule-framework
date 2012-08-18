@@ -15,10 +15,6 @@ if (isset($_POST['pts']))
         if ( class_exists( 'Smarty' ) )
         {
             $out = '<?php require \'' . $pts . '\';';
-            if ( isset($_POST['ptr']) )
-            {
-                $out .= 'require \'' . $_POST['ptr'] . '\'; ';
-            }            
             $file = new \SplFileObject('../config/vital.php', 'w');
             $bytes = $file->fwrite($out);
             header('Location:config.php');
@@ -38,6 +34,5 @@ config form and we can move on.</p>
 <form action="config_vital.php" method="POST">
 
 Full path to Smarty: <input type="text" name="pts" /><br />
-Full path to Predis Autoloader (optional): <input type="text" name="ptr" /><br />
 <input type="submit" />
 </form>

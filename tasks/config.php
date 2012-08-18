@@ -27,6 +27,7 @@ else
             'namespace' => 'Zule',
             'index:controller' => 'IndexController',
             'index:action' => 'IndexAction',
+            'dev' => 'yes',
             'mysql' => [
                 'host' => '127.0.0.1',
                 'port' => '3307',
