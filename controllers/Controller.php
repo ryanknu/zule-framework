@@ -2,45 +2,15 @@
 
 namespace Zule\Controllers;
 
-use ReflectionClass;
-use ReflectionMethod;
-use Zule\Tools\View;
-use Zule\Tools\Router;
-
 class Controller
 {
     private $actions = [];
-    protected $router = null;
-    protected $name = "";
+    protected $name = '';
+    public $preRunFunction = '';
     
-    public function __construct($name, Router $router)
+    public function setName($name)
     {
         $this->name = $name;
-        $this->router = $router;
-    }
-    
-    private function loadActionsByReflection()
-    {
-        if ( empty( $this->actions ) )
-        {
-            $class = get_class($this);
-            $rc = new ReflectionClass($class);
-            $methods = $rc->getMethods(ReflectionMethod::IS_PUBLIC);
-            foreach( $methods as $method )
-            {
-                if ( $method->getDeclaringClass()->getName() == $class )
-                {
-                    // strip out inherited methods
-                    $this->actions[] = $method->getName();
-                }
-            }
-        }
-    }
-    
-    public function isValidAction($action)
-    {
-        $this->loadActionsByReflection();
-        return in_array($action, $this->actions);
     }
     
     public function getName()
@@ -48,14 +18,42 @@ class Controller
         return $this->name;
     }
     
-    public function getView()
+    private function loadActionsByReflection()
     {
-        return new View($this->name);
+        if ( empty( $this->actions ) )
+        {
+            $class = get_class($this);
+            $rc = new \ReflectionClass($class);
+            $methods = $rc->getMethods(\ReflectionMethod::IS_PUBLIC);
+            foreach( $methods as $method )
+            {
+                if ( $method->getDeclaringClass()->getName() == $class )
+                {
+                    // strip out inherited methods
+                    if ( $method->getName() <> $this->preRunFunction )
+                    {
+                    	$this->actions[] = $method->getName();
+                    }
+                }
+            }
+        }
     }
     
-    public function getRouter()
+    public function canRespondToAction($action)
     {
-        return $this->router;
+        $this->loadActionsByReflection();
+        return in_array($action, $this->actions);
+    }
+    
+    public function getActions()
+    {
+        $this->loadActionsByReflection();
+        return $this->actions;
+    }
+    
+    public function getView()
+    {
+        return new \Zule\Tools\View;
     }
     
 }

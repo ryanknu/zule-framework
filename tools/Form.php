@@ -2,8 +2,6 @@
 
 namespace Zule\Tools;
 
-use Smarty;
-
 define('ZULE_FORM_DEFAULT', 'Default');
 
 define('ZF_PROBLEM', 301);
@@ -60,6 +58,9 @@ class Form
     // URI of action page
     private $action;
     
+    // Smarty Handle, for passing options into the form view.
+    private $smarty;
+    
     public function __construct()
     {
         $this->name = ZULE_FORM_DEFAULT;
@@ -89,6 +90,7 @@ class Form
     {
         $this->postExists = array_key_exists( ZF_FILLED_FLAG, $_POST );
         $this->action = Router::Router()->getRequest();
+        $this->smarty = (new View)->getSmarty();
         
         if ( array_key_exists( ZF_AJAX_VALIDATION_FLAG, $_POST ) )
         {
@@ -115,7 +117,7 @@ class Form
             'problem'  => no,
             'draw'     => $type,
             'matches'  => no,
-            'options'  =>no,
+            'options'  => no,
         ];
         
         $this->scanPost($name);
@@ -157,7 +159,7 @@ class Form
         else
         {
             // form is filled out, check CSRF
-            $csrf = $session->get('csrf');
+            $csrf = $session->get(ZF_CSRF);
             if ( !isset( $_POST[ZF_CSRF] ) || $_POST[ZF_CSRF] != $csrf )
             {
                 print_r($_POST);
@@ -167,7 +169,7 @@ class Form
             else
             {
                 // add csrf to form in case we're looping
-                $this->addInput(ZF_CSRF, ZF_HIDDEN)->setDefault($session->get('csrf'));
+                $this->addInput(ZF_CSRF, ZF_HIDDEN)->setDefault($session->get(ZF_CSRF));
             }
         }
     }
@@ -189,7 +191,7 @@ class Form
     
     public function drawAs($type)
     {
-        $this->components[$this->lastComponent]['draw'] = $type;
+        $this->components[$this->lastComponent]['draw'] = "$type.tpl";
         return $this;
     }
     
@@ -312,7 +314,7 @@ class Form
                     $this->components[$name]['default'] = $_POST[$name];
                 }
                 
-                if ( !$this->results[$name] )
+                if ( !$this->results[$name] && $this->components[$name]['required'] )
                 {
                     $this->components[$name]['problem'] = ZF_INVALID;
                     $this->issues ++;
@@ -364,30 +366,35 @@ class Form
         throw new Exception("Cannot locate main form template file (tried '$fizzle')");
     }
     
+    public function smartyAssign($key, $val)
+    {
+        $this->smarty->assign($key, $val);
+    }
+    
     public function getHtml()
     {
-        $s = new Smarty;        
-        
         foreach( array_keys($this->components) as $name )
         {
             // get properties from form
             foreach ( $this->components[$name] as $key => $value )
             {
-                $s->assign($key, $value);
+                $this->smarty->assign($key, $value);
             }
             
             // check for problems
             if ( $this->components[$name]['problem'] )
             {
-                $s->assign('problem', 
+                $this->smarty->assign('problem', 
                     $this->errorString($this->components[$name]['problem'])
                 );
-                $problemHtml = $s->fetch($this->findElementFile(ZF_PROBLEM));
-                $s->assign('problem', $problemHtml);
+                $problemHtml = $this->smarty->fetch(
+                    $this->findElementFile($this->getFile(ZF_PROBLEM))
+                );
+                $this->smarty->assign('problem', $problemHtml);
             }
             else
             {
-                $s->assign('problem', '');
+                $this->smarty->assign('problem', '');
             }
             
             $draw = $this->components[$name]['draw'];
@@ -400,14 +407,14 @@ class Form
                 $file = $draw;
             }
             
-            $this->components[$name]['html'] = $s->fetch(
+            $this->components[$name]['html'] = $this->smarty->fetch(
                 $this->findElementFile($file)
             );
             
         }
         
-        $s->assign('action', $this->action);
-        $s->assign('form_components', $this->components);
-        return $s->fetch( $this->findContainerFile() );
+        $this->smarty->assign('action', $this->action);
+        $this->smarty->assign('form_components', $this->components);
+        return $this->smarty->fetch( $this->findContainerFile() );
     }
 }

@@ -15,7 +15,7 @@ class Suggester
     {
         ob_start();
         
-        $logErrors = Config::dev();
+        $logErrors = (new Config)->get('dev');
         if ( $logErrors )
         {
             set_error_handler(function($errNo, $errStr, $errFile, $errLine) {

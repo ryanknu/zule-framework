@@ -1,6 +1,7 @@
 <?php
 
 namespace Zule\Tools;
+use Smarty;
 
 class Ajax
 {
@@ -10,7 +11,7 @@ class Ajax
 	    // When ajax is initialized, we start output buffering.
 	    ob_start();
 	    
-	    $logErrors = Config::dev();
+	    $logErrors = (new Config)->get('dev');
         if ( $logErrors )
         {
             set_error_handler(function($errNo, $errStr, $errFile, $errLine) {
@@ -20,7 +21,7 @@ class Ajax
                 $this->Error($exception->__toString());
             });
             
-            \Smarty::muteExpectedErrors();
+            Smarty::muteExpectedErrors();
         }
 	}
 	
