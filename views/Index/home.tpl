@@ -1,2 +1,3 @@
-<p>Welcome to your new Zule Framework powered site.</p>
-<p>Visit <a href='/tasks'>/tasks</a> to perform framework tasks</p>
+<p><# Welcome #></p>
+<p><em><# Multilingual #></em></p>
+<p><# Visit Before Link #> <a href='/tasks'>/tasks</a> <# Visit After Link #></p>

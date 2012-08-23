@@ -32,15 +32,22 @@ class View
     public function display($tplName)
     {
         return $this->smarty->display(
-            $this->find($tplName)
+            $this->findAndLocalize($tplName)
         );
     }
     
     public function fetch($tplName)
     {
         return $this->smarty->fetch(
-            $this->find($tplName)
+            $this->findAndLocalize($tplName)
         );
+    }
+    
+    private function findAndLocalize($name)
+    {
+        $path = $this->find($name);
+        $lang = new Language;
+        return $lang->compileView($path, Router::router()->getController()->getName() . '.' . $name);
     }
     
     // Find ensures that views are encapsulated between controllers.

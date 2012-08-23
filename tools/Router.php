@@ -83,75 +83,21 @@ class Router
             header("Location: $location");
         }
     }
-    
-    public function getRoutesInfo()
-    {
-        $controller = $this->getController();
-        $action = @$this->components[1];
-        $canAct = $controller->canRespondToAction($action)? 'yes':'no';
-        if ( $canAct == 'no' ) {
-            $controller = new \Zule\Controllers\Error;
-            $action = 'Action404';
-        }
-        $className = $this->getControllerClassName($this->components[0]);
-        $classLoaded = class_exists($className)? 'yes':'no';
-        if ( $classLoaded == 'yes' )
-        {
-            $c = new $className;
-            $controllerActions = json_encode($c->getActions());
-        }
-        else
-        {
-            $controllerActions = '[]';
-        }
-        return [
-            'uri' => substr($_SERVER['REQUEST_URI'], 1),
-            'route_controller' => $this->components[0],
-            'route_action' => @$this->components[1],
-            'index_controller' => (new Config)->get('index:controller'),
-            'index_action' => (new Config)->get('index:action'),
-            'using_index_controller' => empty($this->components[0]) ? 'yes':'yes',
-            'using_index_action' => (empty($this->components[1]))?'yes':'no',
-            'controller_class' => $className,
-            'looking_in_file' => Imply::getFileNameForClass($className),
-            'controller_class_exists' => $classLoaded,
-            'route_matched' => $canAct,
-            'loaded_controller' => $controller->getName(),
-            'loaded_action' => $action,
-            'query_string' => $_SERVER['QUERY_STRING'],
-            'controller_actions' => $controllerActions,
-        ];
-    }
-    
-    private function getControllerClassName($name)
-    {
-        if ( empty($name) )
-        {
-            $name = (new Config)->get('index:controller');
-        }
-        $nameSpace = (new Config)->get('namespace');
-	    $class = "\\$nameSpace\\Controllers\\$name";
-	    return $class;
-    }
-    
-    private function loadController($name)
+	
+	private function loadController($name)
 	{
-	    $class = $this->getControllerClassName($name);
-	    if ( !Imply::classCanBeImplied($class) )
+	    // Use a wildcard identifier
+	    $id = new Identifier("\\*\\Controllers\\$name");
+	    $class = $id->getClassName();
+	    if ( $class )
 	    {
-	        return new \Zule\Controllers\Error;
+	        $controller = new $class();
+	        $controller->setName($name);
+	        return $controller;
 	    }
 	    else
-	    {	    
-            if ( !class_exists($class) )
-            {
-                // try default namespace
-                $str = substr($class, strpos($class, '\\', 1));
-                $class = '\\Zule' . $str;
-            }
-            $controller = new $class;
-            $controller->setName($name);
-            return $controller;
+	    {
+	        return new Error('Error', $this);
 	    }
 	}
 }
