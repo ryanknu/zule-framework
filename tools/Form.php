@@ -118,6 +118,7 @@ class Form
             'draw'     => $type,
             'matches'  => no,
             'options'  => no,
+            'validator'=> no,
         ];
         
         $this->scanPost($name);
@@ -138,7 +139,8 @@ class Form
             'problem'  => no,
             'draw'     => $type,
             'matches'  => no,
-            'options'  =>no,
+            'options'  => no,
+            'validator'=> no,
         ];
         
         $this->scanPost($name);
@@ -192,6 +194,16 @@ class Form
     public function drawAs($type)
     {
         $this->components[$this->lastComponent]['draw'] = "$type.tpl";
+        return $this;
+    }
+    
+    public function setValidator($callable) {
+        $this->components[$this->lastComponent]['validator'] = $callable;
+        if ( $this->components[$this->lastComponent]['problem']) {
+            $this->components[$this->lastComponent]['problem'] = 0;
+            $this->scanPost($name);
+            $this->issues --;
+        }
         return $this;
     }
     
@@ -297,11 +309,18 @@ class Form
             {
                 // TODO: some way to not filter input
                 $filterFlag = $this->filterFlag($name);
-                if ( $filterFlag )
+                $validator = $this->components[$name]['validator'];
+                if ( $filterFlag && $validator === no )
                 {
                     $this->results[$name] = filter_var(
                         $_POST[$name], $filterFlag
                     );
+                }
+                else if ( is_callable($validator) )
+                {
+                    if ( $x = call_user_func_array($validator, [$_POST[$name]]) ) {
+                        $this->results[$name] = $_POST[$name];
+                    }
                 }
                 else
                 {
